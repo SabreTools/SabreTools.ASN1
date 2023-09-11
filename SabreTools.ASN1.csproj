@@ -13,7 +13,7 @@
     <Copyright>Copyright (c) Matt Nadareski 2022-2023</Copyright>
     <PackageProjectUrl>https://github.com/SabreTools/</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>PLACEHOLDER</RepositoryUrl>
+    <RepositoryUrl>https://github.com/SabreTools/SabreTools.ASN1</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>asn asn1 dot oid</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
