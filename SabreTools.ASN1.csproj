@@ -15,7 +15,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>PLACEHOLDER</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>asn asn1</PackageTags>
+    <PackageTags>asn asn1 dot oid</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
@@ -25,6 +25,10 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SabreTools.IO" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
