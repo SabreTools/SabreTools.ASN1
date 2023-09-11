@@ -1,5 +1,7 @@
-# SabreTools.Serialization
+# SabreTools.ASN1
 
-This library comprises of serializers that both read and write from files and streams to the dedicated models as well as convert to and from the common internal models. This library is partially used by the current parsing and writing code but none of the internal model serialization is used.
+This library comprises of code to parse Abstract Syntax Notation One (ASN.1) codes and output them into various formats. This also performs some rudimentary validation based on the chains that are input.
 
-Find the link to the Nuget package [here](https://www.nuget.org/packages/SabreTools.Serialization).
+**Note:** This code is known to be incomplete and will be added to over time.
+
+Find the link to the Nuget package [here](PLACEHOLDER).
