@@ -25,11 +25,7 @@ namespace SabreTools.ASN1
         /// <summary>
         /// Generic value associated with <see cref="Type"/>
         /// </summary>
-#if NET48
-        public object Value { get; private set; }
-#else
         public object? Value { get; private set; }
-#endif
 
         /// <summary>
         /// Read from the source data array at an index
@@ -117,11 +113,7 @@ namespace SabreTools.ASN1
             }
 
             // Get the value as a byte array
-#if NET48
-            byte[] valueAsByteArray = this.Value as byte[];
-#else
             byte[]? valueAsByteArray = this.Value as byte[];
-#endif
             if (valueAsByteArray == null)
             {
                 formatBuilder.Append(", Value: [INVALID DATA TYPE]");
@@ -166,13 +158,8 @@ namespace SabreTools.ASN1
                     ulong[] objectNodes = ObjectIdentifier.ParseDERIntoArray(valueAsByteArray, this.Length);
 
                     // Append the dot and modified OID-IRI notations
-#if NET48
-                    string dotNotationString = ObjectIdentifier.ParseOIDToDotNotation(objectNodes);
-                    string oidIriString = ObjectIdentifier.ParseOIDToOIDIRINotation(objectNodes);
-#else
                     string? dotNotationString = ObjectIdentifier.ParseOIDToDotNotation(objectNodes);
                     string? oidIriString = ObjectIdentifier.ParseOIDToOIDIRINotation(objectNodes);
-#endif
                     formatBuilder.Append($", Value: {dotNotationString} ({oidIriString})");
                     break;
 

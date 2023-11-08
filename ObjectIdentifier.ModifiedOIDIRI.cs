@@ -1,10 +1,11 @@
 using System.Linq;
 using System.Text;
 
+#pragma warning disable CS0162 // Unreachable code detected
+#pragma warning disable CS0164 // This label has not been referenced
+
 namespace SabreTools.ASN1
 {
-#pragma warning disable IDE0011
-
     /// <summary>
     /// Methods related to Object Identifiers (OID) and OID-IRI formatting
     /// </summary>
@@ -21,11 +22,7 @@ namespace SabreTools.ASN1
         /// not considered to be fully OID-IRI compliant.
         /// </remarks>
         /// <see href="http://www.oid-info.com/index.htm"/>
-#if NET48
-        public static string ParseOIDToModifiedOIDIRI(ulong[] values)
-#else
         public static string? ParseOIDToModifiedOIDIRI(ulong[]? values)
-#endif
         {
             // If we have an invalid set of values, we can't do anything
             if (values == null || values.Length == 0)
@@ -38,11 +35,7 @@ namespace SabreTools.ASN1
             var nameBuilder = new StringBuilder();
 
             // Try to parse the standard value
-#if NET48
-            string standard = ParseOIDToModifiedOIDIRI(values, ref index);
-#else
             string? standard = ParseOIDToModifiedOIDIRI(values, ref index);
-#endif
             if (standard == null)
                 return null;
 
@@ -72,11 +65,7 @@ namespace SabreTools.ASN1
         /// a string from the official description. As such, the output of this is
         /// not considered to be fully OID-IRI compliant.
         /// </remarks>
-#if NET48
-        private static string ParseOIDToModifiedOIDIRI(ulong[] values, ref int index)
-#else
         private static string? ParseOIDToModifiedOIDIRI(ulong[]? values, ref int index)
-#endif
         {
             // If we have an invalid set of values, we can't do anything
             if (values == null || values.Length == 0)
@@ -17179,6 +17168,4 @@ namespace SabreTools.ASN1
             #endregion
         }
     }
-
-#pragma warning restore IDE0011
 }

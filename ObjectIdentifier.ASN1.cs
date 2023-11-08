@@ -1,7 +1,5 @@
 namespace SabreTools.ASN1
 {
-#pragma warning disable IDE0011
-
     /// <summary>
     /// Methods related to Object Identifiers (OID) and ASN.1 notation
     /// </summary>
@@ -14,16 +12,10 @@ namespace SabreTools.ASN1
         /// <param name="index">Current index into the list</param>
         /// <returns>ASN.1 formatted string, if possible</returns>
         /// <remarks>
-#if NET48
-        public static string ParseOIDToASN1Notation(ulong[] values, ref int index)
-#else
         public static string? ParseOIDToASN1Notation(ulong[]? values, ref int index)
-#endif
         {
             // TODO: Once the modified OID-IRI formatting is done, make an ASN.1 notation version
             return null;
         }
     }
-
-#pragma warning restore IDE0011
 }
