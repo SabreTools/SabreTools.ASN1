@@ -197,7 +197,11 @@ namespace SabreTools.ASN1
                     break;
 
                 default:
+#if NET40 || NET452
+                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(this.Value as byte[] ?? new byte[0]).Replace('-', ' ')}");
+#else
                     formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(this.Value as byte[] ?? Array.Empty<byte>()).Replace('-', ' ')}");
+#endif
                     break;
             }
 
@@ -226,11 +230,7 @@ namespace SabreTools.ASN1
 
             // Otherwise, use the value as the number of remaining bytes to read
             int bytesToRead = length & ~0x80;
-#if NET48
-            byte[] bytesRead = data.ReadBytes(ref index, bytesToRead);
-#else
             byte[]? bytesRead = data.ReadBytes(ref index, bytesToRead);
-#endif
             if (bytesRead == null)
                 throw new InvalidOperationException();
 
