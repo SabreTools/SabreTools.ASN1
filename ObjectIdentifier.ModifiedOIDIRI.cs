@@ -48,7 +48,7 @@ namespace SabreTools.ASN1
 
             // Add trailing items as just values
             nameBuilder.Append("/");
-            nameBuilder.Append(string.Join("/", values.Skip(index)));
+            nameBuilder.Append(string.Join("/", values.Skip(index).Select(v => v.ToString()).ToArray()));
 
             // Create and return the string
             return nameBuilder.ToString();

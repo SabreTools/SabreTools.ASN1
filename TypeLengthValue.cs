@@ -45,7 +45,11 @@ namespace SabreTools.ASN1
             this.Length = ReadLength(data, ref index);
 
             // Read the value
+#if NET20 || NET35
+            if ((this.Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
+#else
             if (this.Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
+#endif
             {
                 var valueList = new List<TypeLengthValue>();
 
@@ -72,14 +76,14 @@ namespace SabreTools.ASN1
         public string Format(int paddingLevel = 0)
         {
             // Create the left-padding string
-            string padding = new string(' ', paddingLevel);
+            string padding = new(' ', paddingLevel);
 
             // If we have an invalid item
             if (this.Type == 0)
                 return $"{padding}UNKNOWN TYPE";
 
             // Create the string builder
-            StringBuilder formatBuilder = new StringBuilder();
+            var formatBuilder = new StringBuilder();
 
             // Append the type
             formatBuilder.Append($"{padding}Type: {this.Type}");
@@ -92,10 +96,13 @@ namespace SabreTools.ASN1
                 return formatBuilder.ToString();
 
             // If we have a constructed type
+#if NET20 || NET35
+            if ((this.Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
+#else
             if (this.Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
+#endif
             {
-                var valueAsObjectArray = this.Value as TypeLengthValue[];
-                if (valueAsObjectArray == null)
+                if (this.Value is not TypeLengthValue[] valueAsObjectArray)
                 {
                     formatBuilder.Append(", Value: [INVALID DATA TYPE]");
                     return formatBuilder.ToString();
@@ -113,8 +120,7 @@ namespace SabreTools.ASN1
             }
 
             // Get the value as a byte array
-            byte[]? valueAsByteArray = this.Value as byte[];
-            if (valueAsByteArray == null)
+            if (this.Value is not byte[] valueAsByteArray)
             {
                 formatBuilder.Append(", Value: [INVALID DATA TYPE]");
                 return formatBuilder.ToString();
@@ -128,14 +134,14 @@ namespace SabreTools.ASN1
                     if (this.Length > 1 || valueAsByteArray.Length > 1)
                         formatBuilder.Append($" [Expected length of 1]");
 
-                    bool booleanValue = valueAsByteArray[0] == 0x00 ? false : true;
+                    bool booleanValue = valueAsByteArray[0] != 0x00;
                     formatBuilder.Append($", Value: {booleanValue}");
                     break;
 
                 /// <see href="https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-integer"/>
                 case ASN1Type.V_ASN1_INTEGER:
                     Array.Reverse(valueAsByteArray);
-                    BigInteger integerValue = new BigInteger(valueAsByteArray);
+                    var integerValue = new BigInteger(valueAsByteArray);
                     formatBuilder.Append($", Value: {integerValue}");
                     break;
 
@@ -197,11 +203,7 @@ namespace SabreTools.ASN1
                     break;
 
                 default:
-#if NET40 || NET452
-                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(this.Value as byte[] ?? new byte[0]).Replace('-', ' ')}");
-#else
-                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(this.Value as byte[] ?? Array.Empty<byte>()).Replace('-', ' ')}");
-#endif
+                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(this.Value as byte[] ?? []).Replace('-', ' ')}");
                     break;
             }
 
@@ -230,9 +232,7 @@ namespace SabreTools.ASN1
 
             // Otherwise, use the value as the number of remaining bytes to read
             int bytesToRead = length & ~0x80;
-            byte[]? bytesRead = data.ReadBytes(ref index, bytesToRead);
-            if (bytesRead == null)
-                throw new InvalidOperationException();
+            byte[]? bytesRead = data.ReadBytes(ref index, bytesToRead) ?? throw new InvalidOperationException();
 
             // TODO: Write extensions to read big-endian
 

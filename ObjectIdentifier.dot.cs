@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace SabreTools.ASN1
 {
     /// <summary>
@@ -16,7 +18,7 @@ namespace SabreTools.ASN1
             if (values == null || values.Length == 0)
                 return null;
 
-            return string.Join(".", values);
+            return string.Join(".", values.Select(v => v.ToString()).ToArray());
         }
     }
 }
