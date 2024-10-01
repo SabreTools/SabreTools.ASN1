@@ -1,4 +1,8 @@
+#if NET20 || NET35
+using System.Collections.Generic;
+#else
 using System.Linq;
+#endif
 
 namespace SabreTools.ASN1
 {
@@ -18,7 +22,17 @@ namespace SabreTools.ASN1
             if (values == null || values.Length == 0)
                 return null;
 
+#if NET20 || NET35
+            var stringValues = new List<string>();
+            foreach (ulong value in values)
+            {
+                stringValues.Add(value.ToString());
+            }
+
+            return string.Join(".", stringValues.ToArray());
+#else
             return string.Join(".", values.Select(v => v.ToString()).ToArray());
+#endif
         }
     }
 }

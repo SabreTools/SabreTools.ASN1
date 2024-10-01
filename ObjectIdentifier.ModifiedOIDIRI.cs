@@ -1,4 +1,8 @@
+#if NET20 || NET35
+using System.Collections.Generic;
+#else
 using System.Linq;
+#endif
 using System.Text;
 
 #pragma warning disable CS0162 // Unreachable code detected
@@ -48,7 +52,17 @@ namespace SabreTools.ASN1
 
             // Add trailing items as just values
             nameBuilder.Append("/");
+#if NET20 || NET35
+            var stringValues = new List<string>();
+            for (int i = index; i < values.Length; i++)
+            {
+                stringValues.Add(values[i].ToString());
+            }
+
+            nameBuilder.Append(string.Join("/", stringValues.ToArray()));
+#else
             nameBuilder.Append(string.Join("/", values.Skip(index).Select(v => v.ToString()).ToArray()));
+#endif
 
             // Create and return the string
             return nameBuilder.ToString();
