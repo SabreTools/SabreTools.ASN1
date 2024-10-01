@@ -29,7 +29,7 @@ namespace SabreTools.ASN1
                 stringValues.Add(value.ToString());
             }
 
-            return string.Join(".", stringValues.ToArray());
+            return string.Join(".", [.. stringValues]);
 #else
             return string.Join(".", values.Select(v => v.ToString()).ToArray());
 #endif

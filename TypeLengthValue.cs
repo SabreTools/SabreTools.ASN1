@@ -151,13 +151,7 @@ namespace SabreTools.ASN1
                 case ASN1Type.V_ASN1_BIT_STRING:
                     // TODO: Read into a BitArray and print that out instead?
                     int unusedBits = valueAsByteArray[0];
-#if NET20 || NET35
-                    byte[] valueAsByteArrayCopy = new byte[valueAsByteArray.Length - 1];
-                    Array.Copy(valueAsByteArray, 1, valueAsByteArrayCopy, 0, valueAsByteArrayCopy.Length);
-                    formatBuilder.Append($", Value with {unusedBits} unused bits: {BitConverter.ToString(valueAsByteArrayCopy).Replace('-', ' ')}");
-#else
-                    formatBuilder.Append($", Value with {unusedBits} unused bits: {BitConverter.ToString(valueAsByteArray.Skip(1).ToArray()).Replace('-', ' ')}");
-#endif
+                    formatBuilder.Append($", Value with {unusedBits} unused bits: {BitConverter.ToString(valueAsByteArray, 1).Replace('-', ' ')}");
                     break;
 
                 /// <see href="https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-octet-string"/>

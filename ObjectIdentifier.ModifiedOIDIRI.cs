@@ -59,7 +59,7 @@ namespace SabreTools.ASN1
                 stringValues.Add(values[i].ToString());
             }
 
-            nameBuilder.Append(string.Join("/", stringValues.ToArray()));
+            nameBuilder.Append(string.Join("/", [.. stringValues]));
 #else
             nameBuilder.Append(string.Join("/", values.Skip(index).Select(v => v.ToString()).ToArray()));
 #endif
