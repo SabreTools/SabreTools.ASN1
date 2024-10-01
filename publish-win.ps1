@@ -22,5 +22,5 @@ if (!$NO_BUILD.IsPresent)
     dotnet restore
 
     # Create Nuget Package
-    dotnet pack SabreTools.ASN1.csproj --output $BUILD_FOLDER
+    dotnet pack SabreTools.ASN1\SabreTools.ASN1.csproj --output $BUILD_FOLDER
 }
