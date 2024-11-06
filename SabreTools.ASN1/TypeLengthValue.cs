@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-#if NET40_OR_GREATER || NETCOREAPP
-using System.Linq;
-#endif
 using System.Numerics;
 using System.Text;
 using SabreTools.IO.Extensions;
@@ -37,36 +34,36 @@ namespace SabreTools.ASN1
         public TypeLengthValue(byte[] data, ref int index)
         {
             // Get the type and modifiers
-            this.Type = (ASN1Type)data[index++];
+            Type = (ASN1Type)data[index++];
 
             // If we have an end indicator, we just return
-            if (this.Type == ASN1Type.V_ASN1_EOC)
+            if (Type == ASN1Type.V_ASN1_EOC)
                 return;
 
             // Get the length of the value
-            this.Length = ReadLength(data, ref index);
+            Length = ReadLength(data, ref index);
 
             // Read the value
 #if NET20 || NET35
-            if ((this.Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
+            if ((Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
 #else
-            if (this.Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
+            if (Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
 #endif
             {
                 var valueList = new List<TypeLengthValue>();
 
                 int currentIndex = index;
-                while (index < currentIndex + (int)this.Length)
+                while (index < currentIndex + (int)Length)
                 {
                     valueList.Add(new TypeLengthValue(data, ref index));
                 }
 
-                this.Value = valueList.ToArray();
+                Value = valueList.ToArray();
             }
             else
             {
                 // TODO: Get more granular based on type
-                this.Value = data.ReadBytes(ref index, (int)this.Length);
+                Value = data.ReadBytes(ref index, (int)Length);
             }
         }
 
@@ -81,30 +78,30 @@ namespace SabreTools.ASN1
             string padding = new(' ', paddingLevel);
 
             // If we have an invalid item
-            if (this.Type == 0)
+            if (Type == 0)
                 return $"{padding}UNKNOWN TYPE";
 
             // Create the string builder
             var formatBuilder = new StringBuilder();
 
             // Append the type
-            formatBuilder.Append($"{padding}Type: {this.Type}");
-            if (this.Type == ASN1Type.V_ASN1_EOC)
+            formatBuilder.Append($"{padding}Type: {Type}");
+            if (Type == ASN1Type.V_ASN1_EOC)
                 return formatBuilder.ToString();
 
             // Append the length
-            formatBuilder.Append($", Length: {this.Length}");
-            if (this.Length == 0)
+            formatBuilder.Append($", Length: {Length}");
+            if (Length == 0)
                 return formatBuilder.ToString();
 
             // If we have a constructed type
 #if NET20 || NET35
-            if ((this.Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
+            if ((Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
 #else
-            if (this.Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
+            if (Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
 #endif
             {
-                if (this.Value is not TypeLengthValue[] valueAsObjectArray)
+                if (Value is not TypeLengthValue[] valueAsObjectArray)
                 {
                     formatBuilder.Append(", Value: [INVALID DATA TYPE]");
                     return formatBuilder.ToString();
@@ -122,18 +119,18 @@ namespace SabreTools.ASN1
             }
 
             // Get the value as a byte array
-            if (this.Value is not byte[] valueAsByteArray)
+            if (Value is not byte[] valueAsByteArray)
             {
                 formatBuilder.Append(", Value: [INVALID DATA TYPE]");
                 return formatBuilder.ToString();
             }
 
             // If we have a primitive type
-            switch (this.Type)
+            switch (Type)
             {
                 /// <see href="https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-boolean"/>
                 case ASN1Type.V_ASN1_BOOLEAN:
-                    if (this.Length > 1 || valueAsByteArray.Length > 1)
+                    if (Length > 1 || valueAsByteArray.Length > 1)
                         formatBuilder.Append($" [Expected length of 1]");
 
                     bool booleanValue = valueAsByteArray[0] != 0x00;
@@ -163,7 +160,7 @@ namespace SabreTools.ASN1
                 /// <see cref="http://snmpsharpnet.com/index.php/2009/03/02/ber-encoding-and-decoding-oid-values/"/>
                 case ASN1Type.V_ASN1_OBJECT:
                     // Derive array of values
-                    ulong[] objectNodes = ObjectIdentifier.ParseDERIntoArray(valueAsByteArray, this.Length);
+                    ulong[] objectNodes = ObjectIdentifier.ParseDERIntoArray(valueAsByteArray, Length);
 
                     // Append the dot and modified OID-IRI notations
                     string? dotNotationString = ObjectIdentifier.ParseOIDToDotNotation(objectNodes);
@@ -205,7 +202,7 @@ namespace SabreTools.ASN1
                     break;
 
                 default:
-                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(this.Value as byte[] ?? []).Replace('-', ' ')}");
+                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(Value as byte[] ?? []).Replace('-', ' ')}");
                     break;
             }
 

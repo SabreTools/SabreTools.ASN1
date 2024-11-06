@@ -1,8 +1,4 @@
-#if NET20 || NET35
-using System.Collections.Generic;
-#else
-using System.Linq;
-#endif
+using System;
 using System.Text;
 
 namespace SabreTools.ASN1
@@ -45,17 +41,14 @@ namespace SabreTools.ASN1
 
             // Add trailing items as just values
             nameBuilder.Append("/");
-#if NET20 || NET35
-            var stringValues = new List<string>();
-            for (int i = index; i < values.Length; i++)
-            {
-                stringValues.Add(values[i].ToString());
-            }
 
-            nameBuilder.Append(string.Join("/", [.. stringValues]));
-#else
-            nameBuilder.Append(string.Join("/", values.Skip(index).Select(v => v.ToString()).ToArray()));
-#endif
+            // Get the remaining values in a new array
+            var remainingValues = new ulong[values.Length - index];
+            Array.Copy(values, index, remainingValues, 0, remainingValues.Length);
+
+            // Convert the values and append to the builder
+            var stringValues = Array.ConvertAll(remainingValues, v => v.ToString());
+            nameBuilder.Append(string.Join("/", stringValues));
 
             // Create and return the string
             return nameBuilder.ToString();
