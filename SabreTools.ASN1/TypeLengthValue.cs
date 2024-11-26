@@ -67,10 +67,6 @@ namespace SabreTools.ASN1
             // Create the left-padding string
             string padding = new(' ', paddingLevel);
 
-            // If we have an invalid item
-            if (Type == 0)
-                return $"{padding}UNKNOWN TYPE";
-
             // Create the string builder
             var formatBuilder = new StringBuilder();
 
