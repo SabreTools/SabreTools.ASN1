@@ -43,7 +43,10 @@ namespace SabreTools.ASN1
 
         #region Modifiers
 
-        V_ASN1_UNIVERSAL = 0x00,
+        // Commented out because it is the default
+        // and can interfere with V_ASN1_EOC
+        // V_ASN1_UNIVERSAL = 0x00,
+
         V_ASN1_PRIMITIVE_TAG = 0x1F,
         V_ASN1_CONSTRUCTED = 0x20,
         V_ASN1_APPLICATION = 0x40,
