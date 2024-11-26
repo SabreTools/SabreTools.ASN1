@@ -21,6 +21,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="SabreTools.ASN1.Test" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 

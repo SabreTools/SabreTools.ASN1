@@ -24,7 +24,7 @@ namespace SabreTools.ASN1
             int firstNode = Math.DivRem(data[0], 40, out int secondNode);
 
             // Create a list for all nodes
-            List<ulong> nodes = new List<ulong> { (ulong)firstNode, (ulong)secondNode };
+            List<ulong> nodes = [(ulong)firstNode, (ulong)secondNode];
 
             // All other nodes are encoded uniquely
             int offset = 1;

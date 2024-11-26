@@ -28,6 +28,16 @@ namespace SabreTools.ASN1
         public object? Value { get; private set; }
 
         /// <summary>
+        /// Manual constructor
+        /// </summary>
+        public TypeLengthValue(ASN1Type type, ulong length, object? value)
+        {
+            Type = type;
+            Length = length;
+            Value = value;
+        }
+
+        /// <summary>
         /// Read from the source data array at an index
         /// </summary>
         /// <param name="data">Byte array representing data to read</param>
@@ -109,14 +119,21 @@ namespace SabreTools.ASN1
                 formatBuilder.Append(", Value: [INVALID DATA TYPE]");
                 return formatBuilder.ToString();
             }
+            else if (valueAsByteArray.Length == 0)
+            {
+                formatBuilder.Append(", Value: [NO DATA]");
+                return formatBuilder.ToString();
+            }
 
             // If we have a primitive type
             switch (Type)
             {
                 /// <see href="https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-boolean"/>
                 case ASN1Type.V_ASN1_BOOLEAN:
-                    if (Length > 1 || valueAsByteArray.Length > 1)
+                    if (Length > 1)
                         formatBuilder.Append($" [Expected length of 1]");
+                    else if (valueAsByteArray.Length > 1)
+                        formatBuilder.Append($" [Expected value length of 1]");
 
                     bool booleanValue = valueAsByteArray[0] != 0x00;
                     formatBuilder.Append($", Value: {booleanValue}");
@@ -179,7 +196,7 @@ namespace SabreTools.ASN1
                 case ASN1Type.V_ASN1_UTCTIME:
                     string utctimeString = Encoding.ASCII.GetString(valueAsByteArray);
                     if (DateTime.TryParse(utctimeString, out DateTime utctimeDateTime))
-                        formatBuilder.Append($", Value: {utctimeDateTime}");
+                        formatBuilder.Append($", Value: {utctimeDateTime:yyyy-MM-dd HH:mm:ss}");
                     else
                         formatBuilder.Append($", Value: {utctimeString}");
                     break;
@@ -190,7 +207,7 @@ namespace SabreTools.ASN1
                     break;
 
                 default:
-                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(valueAsByteArray).Replace('-', ' ')}");
+                    formatBuilder.Append($", Value: {BitConverter.ToString(valueAsByteArray).Replace('-', ' ')}");
                     break;
             }
 

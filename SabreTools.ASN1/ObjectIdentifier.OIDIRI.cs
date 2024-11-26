@@ -73,7 +73,7 @@ namespace SabreTools.ASN1
 
             #region Start
 
-            var oidPath = $"/{values[index]}";
+            var oidPath = string.Empty;
             switch (values[index++])
             {
                 case 0: goto oid_0;
