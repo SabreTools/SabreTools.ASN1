@@ -14,17 +14,17 @@ namespace SabreTools.ASN1
         /// <summary>
         /// The ASN.1 type
         /// </summary>
-        public ASN1Type Type { get; private set; }
+        public ASN1Type Type { get; }
 
         /// <summary>
         /// Length of the value
         /// </summary>
-        public ulong Length { get; private set; }
+        public ulong Length { get; }
 
         /// <summary>
         /// Generic value associated with <see cref="Type"/>
         /// </summary>
-        public object? Value { get; private set; }
+        public object? Value { get; }
 
         /// <summary>
         /// Read from the source data array at an index
