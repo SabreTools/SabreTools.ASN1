@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -257,7 +256,7 @@ namespace SabreTools.ASN1
         {
             // If the data is invalid
             if (data.Length == 0 || !data.CanRead)
-                throw new DataException(nameof(data));
+                throw new InvalidDataException(nameof(data));
             if (data.Position < 0 || data.Position >= data.Length)
                 throw new IndexOutOfRangeException(nameof(data));
 
