@@ -191,7 +191,7 @@ namespace SabreTools.ASN1
                     break;
 
                 default:
-                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(Value as byte[] ?? []).Replace('-', ' ')}");
+                    formatBuilder.Append($", Value (Unknown Format): {BitConverter.ToString(valueAsByteArray).Replace('-', ' ')}");
                     break;
             }
 
