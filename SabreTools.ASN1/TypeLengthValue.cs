@@ -274,33 +274,48 @@ namespace SabreTools.ASN1
 
             // Otherwise, use the value as the number of remaining bytes to read
             int bytesToRead = length & ~0x80;
+
+            // Assemble the length based on byte count
+            ulong fullLength = 0;
             switch (bytesToRead)
             {
-                // Powers of 2
-                case 1:
-                    return data.ReadByteValue();
-                case 2:
-                    return data.ReadUInt16BigEndian();
-                case 4:
-                    return data.ReadUInt32BigEndian();
                 case 8:
-                    return data.ReadUInt64BigEndian();
-
-                // Values between are assembled
-                case 3:
-                    byte[] lessThan4 = data.ReadBytes(bytesToRead);
-                    Array.Resize(ref lessThan4, 4);
-                    return data.ReadUInt32BigEndian();
-                case 5:
-                case 6:
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 7;
                 case 7:
-                    byte[] lessThan8 = data.ReadBytes(bytesToRead);
-                    Array.Resize(ref lessThan8, 8);
-                    return data.ReadUInt64BigEndian();
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 6;
+                case 6:
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 5;
+                case 5:
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 4;
+                case 4:
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 3;
+                case 3:
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 2;
+                case 2:
+                    fullLength |= data.ReadByteValue();
+                    fullLength <<= 8;
+                    goto case 1;
+                case 1:
+                    fullLength |= data.ReadByteValue();
+                    break;
 
                 default:
                     throw new InvalidOperationException();
             }
+
+            return fullLength;
         }
     }
 }
