@@ -65,7 +65,7 @@ namespace SabreTools.ASN1
                 nodes.Add(dotValue);
             }
 
-            return nodes.ToArray();
+            return [.. nodes];
         }
     }
 }
