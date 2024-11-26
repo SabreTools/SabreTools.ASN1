@@ -8,17 +8,6 @@ namespace SabreTools.ASN1
     [Flags]
     public enum ASN1Type : byte
     {
-        #region Modifiers
-
-        V_ASN1_UNIVERSAL = 0x00,
-        V_ASN1_PRIMITIVE_TAG = 0x1F,
-        V_ASN1_CONSTRUCTED = 0x20,
-        V_ASN1_APPLICATION = 0x40,
-        V_ASN1_CONTEXT_SPECIFIC = 0x80,
-        V_ASN1_PRIVATE = 0xC0,
-
-        #endregion
-
         #region Types
 
         V_ASN1_EOC = 0x00,
@@ -49,6 +38,17 @@ namespace SabreTools.ASN1
         V_ASN1_GENERALSTRING = 0x1B,
         V_ASN1_UNIVERSALSTRING = 0x1C,
         V_ASN1_BMPSTRING = 0x1E,
+
+        #endregion
+
+        #region Modifiers
+
+        V_ASN1_UNIVERSAL = 0x00,
+        V_ASN1_PRIMITIVE_TAG = 0x1F,
+        V_ASN1_CONSTRUCTED = 0x20,
+        V_ASN1_APPLICATION = 0x40,
+        V_ASN1_CONTEXT_SPECIFIC = 0x80,
+        V_ASN1_PRIVATE = 0xC0,
 
         #endregion
     }
