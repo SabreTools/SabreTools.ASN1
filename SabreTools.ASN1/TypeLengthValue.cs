@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Numerics;
 using System.Text;
 using SabreTools.IO.Extensions;
@@ -14,17 +16,17 @@ namespace SabreTools.ASN1
         /// <summary>
         /// The ASN.1 type
         /// </summary>
-        public ASN1Type Type { get; }
+        public ASN1Type Type { get; private set; }
 
         /// <summary>
         /// Length of the value
         /// </summary>
-        public ulong Length { get; }
+        public ulong Length { get; private set; }
 
         /// <summary>
         /// Generic value associated with <see cref="Type"/>
         /// </summary>
-        public object? Value { get; }
+        public object? Value { get; private set; }
 
         /// <summary>
         /// Read from the source data array at an index
@@ -33,38 +35,26 @@ namespace SabreTools.ASN1
         /// <param name="index">Index within the array to read at</param>
         public TypeLengthValue(byte[] data, ref int index)
         {
-            // Get the type and modifiers
-            Type = (ASN1Type)data[index++];
+            // If the data is invalid
+            if (data.Length == 0)
+                throw new InvalidDataException(nameof(data));
+            if (index < 0 || index >= data.Length)
+                throw new IndexOutOfRangeException(nameof(index));
 
-            // If we have an end indicator, we just return
-            if (Type == ASN1Type.V_ASN1_EOC)
-                return;
+            using var stream = new MemoryStream(data);
+            stream.Seek(index, SeekOrigin.Begin);
+            if (!Parse(stream))
+                throw new InvalidDataException(nameof(data));
+        }
 
-            // Get the length of the value
-            Length = ReadLength(data, ref index);
-
-            // Read the value
-#if NET20 || NET35
-            if ((Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
-#else
-            if (Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
-#endif
-            {
-                var valueList = new List<TypeLengthValue>();
-
-                int currentIndex = index;
-                while (index < currentIndex + (int)Length)
-                {
-                    valueList.Add(new TypeLengthValue(data, ref index));
-                }
-
-                Value = valueList.ToArray();
-            }
-            else
-            {
-                // TODO: Get more granular based on type
-                Value = data.ReadBytes(ref index, (int)Length);
-            }
+        /// <summary>
+        /// Read from the source data stream
+        /// </summary>
+        /// <param name="data">Stream representing data to read</param>
+        public TypeLengthValue(Stream data)
+        {
+            if (!Parse(data))
+                throw new InvalidDataException(nameof(data));
         }
 
         /// <summary>
@@ -214,19 +204,69 @@ namespace SabreTools.ASN1
         }
 
         /// <summary>
+        /// Parse a stream into TLV data
+        /// </summary>
+        /// <param name="data">Stream representing data to read</param>
+        /// <returns>Indication if parsing was successful</returns>
+        private bool Parse(Stream data)
+        {
+            // If the data is invalid
+            if (data.Length == 0 || !data.CanRead)
+                return false;
+            if (data.Position < 0 || data.Position >= data.Length)
+                throw new IndexOutOfRangeException(nameof(data));
+
+            // Get the type and modifiers
+            Type = (ASN1Type)data.ReadByteValue();
+
+            // If we have an end indicator, we just return
+            if (Type == ASN1Type.V_ASN1_EOC)
+                return true;
+
+            // Get the length of the value
+            Length = ReadLength(data);
+
+            // Read the value
+#if NET20 || NET35
+            if ((Type & ASN1Type.V_ASN1_CONSTRUCTED) != 0)
+#else
+            if (Type.HasFlag(ASN1Type.V_ASN1_CONSTRUCTED))
+#endif
+            {
+                var valueList = new List<TypeLengthValue>();
+
+                long currentIndex = data.Position;
+                while (data.Position < currentIndex + (long)Length)
+                {
+                    valueList.Add(new TypeLengthValue(data));
+                }
+
+                Value = valueList.ToArray();
+            }
+            else
+            {
+                // TODO: Get more granular based on type
+                Value = data.ReadBytes((int)Length);
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Reads the length field for a type
         /// </summary>
-        /// <param name="data">Byte array representing data to read</param>
-        /// <param name="index">Index within the array to read at</param>
+        /// <param name="data">Stream representing data to read</param>
         /// <returns>The length value read from the array</returns>
-        private static ulong ReadLength(byte[] data, ref int index)
+        private static ulong ReadLength(Stream data)
         {
-            // If we have invalid data, throw an exception
-            if (data == null || index < 0 && index >= data.Length)
-                throw new ArgumentException();
+            // If the data is invalid
+            if (data.Length == 0 || !data.CanRead)
+                throw new DataException(nameof(data));
+            if (data.Position < 0 || data.Position >= data.Length)
+                throw new IndexOutOfRangeException(nameof(data));
 
             // Read the first byte, assuming it's the length
-            byte length = data[index++];
+            byte length = data.ReadByteValue();
 
             // If the bit 7 is not set, then use the value as it is
             if ((length & 0x80) == 0)
@@ -234,31 +274,30 @@ namespace SabreTools.ASN1
 
             // Otherwise, use the value as the number of remaining bytes to read
             int bytesToRead = length & ~0x80;
-            byte[]? bytesRead = data.ReadBytes(ref index, bytesToRead) ?? throw new InvalidOperationException();
-
-            // TODO: Write extensions to read big-endian
-
-            // Reverse the bytes to be in big-endian order
-            Array.Reverse(bytesRead);
-
-            switch (bytesRead.Length)
+            switch (bytesToRead)
             {
+                // Powers of 2
                 case 1:
-                    return bytesRead[0];
+                    return data.ReadByteValue();
                 case 2:
-                    return BitConverter.ToUInt16(bytesRead, 0);
-                case 3:
-                    Array.Resize(ref bytesRead, 4);
-                    goto case 4;
+                    return data.ReadUInt16BigEndian();
                 case 4:
-                    return BitConverter.ToUInt32(bytesRead, 0);
+                    return data.ReadUInt32BigEndian();
+                case 8:
+                    return data.ReadUInt64BigEndian();
+
+                // Values between are assembled
+                case 3:
+                    byte[] lessThan4 = data.ReadBytes(bytesToRead);
+                    Array.Resize(ref lessThan4, 4);
+                    return data.ReadUInt32BigEndian();
                 case 5:
                 case 6:
                 case 7:
-                    Array.Resize(ref bytesRead, 8);
-                    goto case 8;
-                case 8:
-                    return BitConverter.ToUInt64(bytesRead, 0);
+                    byte[] lessThan8 = data.ReadBytes(bytesToRead);
+                    Array.Resize(ref lessThan8, 8);
+                    return data.ReadUInt64BigEndian();
+
                 default:
                     throw new InvalidOperationException();
             }
