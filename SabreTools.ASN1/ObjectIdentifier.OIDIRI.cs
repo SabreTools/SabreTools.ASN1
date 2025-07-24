@@ -100,7 +100,8 @@ namespace SabreTools.ASN1
                 case 5: return "/ITU-R/R-Recommendation";
                 case 9: return $"{oidPath}/Data";
                 default: return $"{oidPath}/{values[index - 1]}";
-            };
+            }
+            ;
 
         // recommendation
         #region 0.0.*
