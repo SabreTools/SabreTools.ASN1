@@ -6,6 +6,7 @@
         <IncludeSymbols>true</IncludeSymbols>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+        <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <Version>1.6.1</Version>
