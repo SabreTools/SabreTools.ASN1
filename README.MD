@@ -2,6 +2,8 @@
 
 [![Build and Test](https://github.com/SabreTools/SabreTools.ASN1/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/SabreTools/SabreTools.ASN1/actions/workflows/build_and_test.yml)
 
+**NOTICE:** This library will be deprecated in the future. All functionality will end up in [SabreTools.Serialization](https://github.com/SabreTools/SabreTools.Serialization) in its next major update. At that point, this repository will be privated and the Nuget package will be marked as deprecated.
+
 This library comprises of code to parse Abstract Syntax Notation One (ASN.1) codes and output them into various formats. This also performs some rudimentary validation based on the chains that are input.
 
 **Note:** This code is known to be incomplete and will be added to over time.
